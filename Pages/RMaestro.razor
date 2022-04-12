@@ -1,0 +1,318 @@
+@using ProyectoFinal.Recursos
+
+@page "/RMaestro"
+@page "/RMaestro/{MaestroId:int}"
+
+@inject IToastService toast
+
+
+<EditForm Model="maestro" OnValidSubmit="Guardar">
+
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div class="card">
+        <div class="card-header">
+            <h3>Registro de Maestros</h3>
+        </div>
+
+        <div class="card-body">
+            <form>
+
+                @*Maestro id*@
+
+                <div class="form-row align-items-center">
+
+                    <div class="col">
+                        <div class="form-group">
+                            <label>MaestroID</label>
+                            <div class="input-group">
+                                 <InputNumber @bind-Value = "maestro.MaestroId" class="form-control col-4" /> 
+                                <div>
+                                    <button type="button" class="btn btn-primary input-group-text" @onclick = "Buscar"
+                                        >Buscar  </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    @* Numero de Cedula *@
+                    <div class="form-group">
+                        <label>Numero de Tarjeta de identificaci&oacute;n (Numero de C&eacute;dula)</label>
+                        <InputText class="form-control" @bind-Value="maestro.NumeroIdentificacion" /> 
+                        <ValidationMessage For="@(() =>maestro.NumeroIdentificacion)" />
+                    </div>
+
+                    @*Nombres*@
+                    <div class="form-group">
+                        <label>Nombres</label>
+                       <InputText class="form-control" @bind-Value="maestro.Nombres" />
+                       <ValidationMessage For="@(() =>maestro.Nombres)" />
+                    </div>
+
+                    @*Apellidos*@
+                    <div class="form-group">
+                        <label>Apellidos</label>
+                       <InputText class="form-control" @bind-Value="maestro.Apellidos" /> 
+                       <ValidationMessage For="@(() =>maestro.Apellidos)" />
+                    </div>
+
+                     @*Nacionalidad*@
+                    <div class="form-group">
+                        <label>Pa&iacute;s de nacimiento</label>
+
+                       <InputSelect class="form-select text-14" @bind-Value="maestro.Nacionalidad" >
+                        <option></option>
+                        @foreach ( var pais in listaPaises)
+                        {  
+                            <option>@pais</option>
+                        }
+                       </InputSelect>
+                       <ValidationMessage For="@(() =>maestro.Nacionalidad)" />
+                    </div>
+                        @*Sexo del maestro*@
+                     <div class="form-group">
+                        <label>Sexo</label>
+                        <InputSelect class="form-select text-14" @bind-Value="maestro.Sexo">
+                            <option></option>
+                            <option>Masculino</option>
+                            <option>Femenino</option>
+                        </InputSelect>
+                        <ValidationMessage For="@(() =>maestro.Sexo)" />
+                    </div>
+
+                    @*Fecha de nacimiento*@
+                    <div class="form-group">
+                        <label>Fecha de nacimiento</label>
+                       <InputDate class="form-control" @bind-Value="maestro.FechaNacimiento" />
+                       <ValidationMessage For="@(() =>maestro.FechaNacimiento)" />
+                    </div>
+
+                    @*Dirección*@
+                    <div class="form-group">
+                        <label>Direcci&oacute;n</label>
+                        <InputText class="form-control" @bind-Value="maestro.Direccion" />
+                        <ValidationMessage For="@(() =>maestro.Direccion)" />
+                    </div>
+
+                    @*Telefono*@
+                    <div class="form-group">
+                        <label>Tel&eacute;fono</label>
+                       <InputText class="form-control" @bind-Value="maestro.Telefono" /> 
+                       <ValidationMessage For="@(() =>maestro.Telefono)" />
+                    </div>
+                    @* Correo electronico del maestroestudiante *@
+                            <div class="form-group">
+                                <label>Email</label>
+                                <InputText class="form-control" @bind-Value="maestro.Email" />
+                                <ValidationMessage For="@(() =>maestro.Email)" />
+                            </div>
+
+                    @*Cantidad de materias*@
+                    <div class="form-group">
+                        <label>Cantidad de Materias</label>
+                       <InputNumber class="form-control" @bind-Value="maestro.CantidadMaterias" readonly/>
+                    </div>
+
+                    <div class="card-header">
+                        <h3>Materias</h3>
+                    </div>
+
+                    <div class="card-body">
+                        <div class="form-row align-items-center">
+                            <div class="col">
+                                <div class="form-row align-items-center">
+                                    <div class="form-group">
+                                        <div class="row input-group">
+
+                                            <div class="w3-container col">
+                                                <label>Nombre de la materia</label>
+                                                <InputSelect class="form-select text-14" @bind-Value="materiaId">
+                                    @foreach (var item in listaMateria)
+                                    {
+                                        <option value="@item.MateriaId">@item.NombreMateria</option>
+                                    }
+                                </InputSelect>
+                                            </div> 
+
+                                            <div class="w3-container col">
+                                                <br>
+                                                <button type="button" class="btn btn-lg btn-primary" @onclick="AgregarDetalle"
+                                                   >Agregar materia</button>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <table class="table table-bordered">
+                            <thead class="thead">
+                                <tr class="table">
+                                    <td>MateriaId</td>
+                                    <td>Nombre de la materia</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+
+                                 @foreach (var itemMateria in listaMateria)
+                            {
+                                @foreach (var itemMateriaProfesor in maestro.MaestroDetalle)
+                                {
+                                    @if (itemMateria.MateriaId == itemMateriaProfesor.MateriaId)
+                                    {
+                                        <tr>
+                                            <td>@itemMateria.MateriaId</td>
+                                            <td>@itemMateria.NombreMateria</td>
+                                            <td><span class="btn btn-sm btn-outline-primary oi oi-ban" href="#"
+                                        @onclick="@(() => RemoverFila(itemMateriaProfesor))"> Remover</span> </td>
+                                        </tr>
+                                    }
+                                }
+                            }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </form>
+
+            <div class="card-footer">
+
+                <div class="form-group text-center" display: inline-block>
+
+                    <button type="button" class="btn btn-lg btn-primary" @onclick="Nuevo">Nuevo</button>
+
+                    <button type="submit" class="btn btn-lg btn-success">Guardar</button>
+
+                    <button type="button" class="btn btn-lg btn-danger" @onclick="Eliminar">Eliminar</button>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+</EditForm>
+
+@code {
+
+    [Parameter]
+    public int MaestroId { get; set; }
+    public Maestro maestro { get; set; } = new Maestro();
+    public Materia materia { get; set; } = new Materia();
+    public List<Materia> listaMateria { get; set; } = new List<Materia>();
+
+    [Inject]
+    public MaestroBLL maestroBLL { get; set; }
+    
+    [Inject]
+    public MateriaBLL materiaBLL { get; set; }
+
+    public int materiaId { get; set; }
+    public Paises paises = new Paises();
+    public List <Maestro> listaMaestro = new List<Maestro>();
+    public List<string> listaPaises;
+
+    protected override void OnInitialized()
+    {
+        maestro.MaestroId = MaestroId;
+         listaMateria = materiaBLL.GetList(p => true); 
+         listaPaises = paises.LlenarListaPaises();
+        Buscar();
+    }
+
+    public void Buscar()
+    {
+        if (this.maestro.MaestroId > 0)
+        {
+            Maestro encontrado = maestroBLL.Buscar(this.maestro.MaestroId);
+            if (encontrado != null)
+            {
+                this.maestro = encontrado;
+            }
+            else
+            {
+                toast.ShowError("Sin resultados", "No se ha encontrado el maestro"); 
+            }
+        }
+    }
+
+    private void AgregarDetalle()
+    {
+        if (!BuscarMateria())
+        {
+        this.maestro.MaestroDetalle.Add(new MaestroDetalle(materiaId));
+        maestro.CantidadMaterias++;
+    }else{
+        toast.ShowError("Error", "El maestro ya imparte esta materia.");
+    }
+    }
+
+    private void RemoverFila(MaestroDetalle item)
+    {
+        this.maestro.MaestroDetalle.Remove(item);
+         maestro.CantidadMaterias--;
+    }
+
+    public void Nuevo()
+    {
+        maestro = new Maestro();
+    }
+    public void Guardar()
+    {
+        
+        if (maestroBLL.Guardar(maestro))
+        {
+            toast.ShowSuccess("Éxito!!", "Se ha guardado el maestro con exito"); 
+            Nuevo();
+        }
+        else
+        {
+            toast.ShowError("Error", "No se ha podido guardar el maestro"); 
+        }        
+
+    }
+    private bool CedulaEncontrada(){
+        bool encontrado = false;
+        listaMaestro = maestroBLL.GetList(p=>true);
+        foreach(var item in listaMaestro){
+            if(item.NumeroIdentificacion == maestro.NumeroIdentificacion){
+                encontrado = true;
+                break;
+            }
+        }
+        return encontrado;
+    }
+    private void Eliminar()
+    {
+        bool eliminado;
+
+        eliminado = maestroBLL.Eliminar(maestro.MaestroId);
+        if (eliminado)
+        {
+            Nuevo();
+            toast.ShowSuccess("Éxito", "Se ha eliminado el maestro con exito");
+        }
+        else
+        {
+            toast.ShowError("Error", "No se ha podido eliminar el maestro");
+        }
+    }
+
+        private bool BuscarMateria()
+    {
+        bool estudianteEncontrado = false;
+        foreach (var itemMateriaProfesor in maestro.MaestroDetalle)
+        {
+            if (itemMateriaProfesor.MateriaId == materiaId)
+            {
+                estudianteEncontrado = true;
+                break;
+            }
+        }
+        return estudianteEncontrado;
+        {
+        }
+
+    }
+
+}

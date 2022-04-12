@@ -1,0 +1,176 @@
+@using ProyectoFinal.Entidades
+@using ProyectoFinal.DAL
+
+@page "/CEstudiante"
+
+
+
+<EditForm Model="listaEstudiante">
+    <DataAnnotationsValidator />
+
+    <div class="card" style="box-shadow: 8px 8px rgba(0, 0, 0, 0.26);">
+
+        <div class="card-header">
+            <h4 style="text-align: center;">Consulta de estudiantes</h4>
+        </div>
+
+        <div class="card-body">
+            <form>
+                <div class="input-group d-flex align-items-end">
+
+                    <div class="container">
+
+
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" @bind-value="@checkBoxFecha">
+                            <label class="form-check-label">Buscar por fecha de nacimiento</label>
+                        </div>
+
+                        <div>
+                            <label>Desde</label>
+                            <InputDate class="form-control" @bind-Value="fechaDesde" name="DataPickerDesde" />
+                        </div>
+
+                        <div>
+                            <label>Hasta</label>
+                            <InputDate class="form-control" @bind-Value="fechaHasta" name="DataPickerDesde" />
+                        </div>
+                    </div>
+
+                    <div class="flex-fill mx-2">
+                        <label>Filtro</label>
+                        <InputSelect class="form-select text-14" @bind-Value="filtro">
+                            <option value="1">ID</option>
+                            <option value="2">Nombres</option>
+                        </InputSelect>
+                    </div>
+
+
+                    <div class="flex-fill mx-2">
+                        <label>Busqueda</label>
+                        <InputText class="form-control" @bind-Value="Criterio" />
+                    </div>
+
+                    <button type="button" class="btn btn-lg btn-primary" @onclick="Buscar"><span
+                            class="oi oi-magnifying-glass"></span>Buscar</button>
+                </div>
+            </form>
+        </div>
+        <table class="table table-bordered" style="box-shadow: 1px 6px rgba(0, 0, 0, 0.2);">
+            <thead class="thead">
+                <tr class="table">
+                    <td><b>ID</b></td>
+                    <td><b>Nombres</b></td>
+                    <td><b>Apellidos</b></td>
+                    <td><b>Sexo</b></td>
+                    <td><b>Pais de nacimiento</b></td>
+                    <td><b>Fecha de nacimiento</b></td>
+                    <td><b>Tel&eacute;fono</b></td>
+                    <td><b>Email</b></td>
+                    <td><b>Direcci&oacute;n</b></td>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in listaEstudiante)
+                {
+                    <tr>
+                        <td>@item.EstudianteId</td>
+                        <td>@item.Nombres</td>
+                        <td>@item.Apellidos</td>
+                        <td>@item.Sexo</td>
+                        <td>@item.Nacionalidad</td>
+                        <td>@item.FechaNacimiento.ToString("dd/MM/yyyy")</td>
+                        <td>@item.Telefono</td>
+                        <td>@item.Email</td>
+                        <td>@item.Direccion</td>
+                        <td><a class="btn btn-sm btn-outline-primary oi oi-eye"
+                            href=@($"REstudiante/{item.EstudianteId}")></a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</EditForm>
+
+
+
+
+@code {
+    public string filtro { get; set; } = "1";
+    public string Criterio { get; set; } = "";
+    public DateTime fechaDesde;
+    public DateTime fechaHasta;
+    public bool checkBoxFecha = false;
+
+
+
+
+    public List<Estudiante> listaEstudiante { get; set; } = new List<Estudiante>();
+
+    [Inject]
+    public EstudianteBLL estudianteBLL { get; set; }
+
+    private void Buscar()
+    {
+
+        switch (filtro)
+        {
+            case "1":
+                if (checkBoxFecha == true && Criterio != "")
+                {
+                    listaEstudiante = null;
+                    listaEstudiante = estudianteBLL.GetList(c => c.FechaNacimiento.Date >= fechaDesde && c.FechaNacimiento <=
+                    fechaHasta && c.EstudianteId
+                    == int.Parse(Criterio));
+
+                }
+                else if (checkBoxFecha == true && Criterio == "")
+                {
+                    listaEstudiante = null;
+                    listaEstudiante = estudianteBLL.GetList(c => c.FechaNacimiento.Date >= fechaDesde && c.FechaNacimiento <=
+                    fechaHasta);
+
+                }
+                else if (!checkBoxFecha && Criterio == "")
+                {
+                    listaEstudiante = null;
+                    listaEstudiante = estudianteBLL.GetList(p => true);
+                }
+                else
+                {
+                    listaEstudiante = null;
+                    listaEstudiante = estudianteBLL.GetList(p => p.EstudianteId == int.Parse(Criterio));
+                }
+                break;
+
+            case "2":
+                if (checkBoxFecha == true && Criterio != "")
+                {
+                    listaEstudiante = null;
+                    listaEstudiante = estudianteBLL.GetList(c => c.FechaNacimiento.Date >= fechaDesde && c.FechaNacimiento <=
+                    fechaHasta &&
+                    c.Nombres.ToLower().Contains(Criterio.ToLower()));
+
+                }
+                else if (checkBoxFecha == true && Criterio == "")
+                {
+                    listaEstudiante = null;
+                    listaEstudiante = estudianteBLL.GetList(c => c.FechaNacimiento.Date >= fechaDesde && c.FechaNacimiento <=
+                    fechaHasta);
+
+                }
+                else if (!checkBoxFecha && Criterio == "")
+                {
+                    listaEstudiante = null;
+                    listaEstudiante = estudianteBLL.GetList(p => true);
+                }
+                else
+                {
+                    listaEstudiante = null;
+                    listaEstudiante = estudianteBLL.GetList(p => p.Nombres.ToLower().Contains(Criterio.ToLower()));
+                }
+                break;
+        }
+    }
+}

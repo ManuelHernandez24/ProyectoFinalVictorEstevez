@@ -1,0 +1,130 @@
+@page "/RAreaTecnica"
+@page "/RAreaTecnica/{AreaTecnicaId:int}"
+@inject IToastService toast
+
+<EditForm Model="areaTecnica" OnValidSubmit="Guardar">
+
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div class="card">
+        <div class="card-header">
+            <h3>Registro de &aacute;reas t&eacute;cnicas</h3>
+        </div>
+
+        <div class="card-body">
+            <form>
+
+                @*Area Tecnica id*@
+                <div class="form-row align-items-center">
+                    <div class="col">
+                        <div class="form-group">
+                            <label>MateriaID</label>
+                            <div class="input-group">
+                                <InputNumber @bind-Value="areaTecnica.AreaTecnicaId" class="form-control col-4" />
+                                <div>
+                                    <button type="button" class="btn btn-primary input-group-text"
+                                        @onclick="Buscar">Buscar</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <br>
+                    <div class="card-body">
+                        @* Nombres del area tecnica*@
+                        <div class="form-group">
+                            <label>Nombre del &aacute;reas t&eacute;cnicas</label>
+                            <InputText class="form-control" @bind-Value="areaTecnica.NombreAreaTecnica" />
+                            <ValidationMessage For="@(() =>areaTecnica.NombreAreaTecnica)" />  
+                        </div>
+                    </div>
+                </div>
+            </form>
+
+            <div class="card-footer">
+
+                <div class="form-group text-center" display: inline-block>
+
+                    <button type="button" class="btn btn-lg btn-primary" @onclick="Nuevo">Nuevo</button>
+
+                    <button type="submit" class="btn btn-lg btn-success">Guardar</button>
+
+                    <button type="button" class="btn btn-lg btn-danger" @onclick="Eliminar">Eliminar</button>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+</EditForm>
+
+@code {
+
+    [Parameter]
+    public int AreaTecnicaId { get; set; }
+    public AreaTecnica areaTecnica { get; set; } = new AreaTecnica();
+    @* public Producto producto { get; set; } = new Producto(); *@
+    //Entdiad de materia
+
+    [Inject]
+    public AreaTecnicaBLL areaTecnicaBLL { get; set; }
+
+    protected override void OnInitialized()
+    {
+        areaTecnica.AreaTecnicaId = AreaTecnicaId;
+        Buscar();
+
+    }
+
+    public void Buscar()
+    {
+        if (this.areaTecnica.AreaTecnicaId > 0)
+        {
+            AreaTecnica encontrado = areaTecnicaBLL.Buscar(this.areaTecnica.AreaTecnicaId);
+            if (encontrado != null)
+            {
+                this.areaTecnica = encontrado;
+            }
+            else
+            {
+                toast.ShowError("Sin resultados", "No se ha encontrado el Área TÉcnica")
+                ;
+            }
+        }
+    }
+
+    public void Nuevo()
+    {
+        areaTecnica = new AreaTecnica();
+    }
+    public void Guardar()
+    {
+
+        if (areaTecnicaBLL.Guardar(areaTecnica))
+        {
+            toast.ShowSuccess("Éxito!!", "Se ha guardado el Área TÉcnica con exito");
+            Nuevo();
+        }
+        else
+        {
+            toast.ShowError("Error", "No se ha podido guardar el Área TÉcnica");
+        }
+
+    }
+    private void Eliminar()
+    {
+        bool eliminado;
+
+        eliminado = areaTecnicaBLL.Eliminar(areaTecnica.AreaTecnicaId);
+        if (eliminado)
+        {
+            Nuevo();
+            toast.ShowSuccess("Éxito", "Se ha eliminado el Área TÉcnica con exito");
+        }
+        else
+        {
+            toast.ShowError("Error", "No se ha podido eliminar el Área TÉcnica");
+        }
+    }
+
+}

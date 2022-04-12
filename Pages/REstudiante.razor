@@ -1,0 +1,275 @@
+@using ProyectoFinal.Recursos
+@page "/REstudiante"
+@page "/REstudiante/{EstudianteId:int}"
+@inject IToastService toast
+
+
+<EditForm Model="estudiante" OnValidSubmit="Guardar">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="card">
+        <div class="card-header">
+            <h3>Registro de Estudiantes</h3>
+        </div>
+
+        <div class="card-body">
+            <form>
+
+                @*Estudiante id*@
+                <div class="form-row align-items-center">
+                    <div class="col">
+                        <div class="form-group">
+                            <label>EstudianteID</label>
+                            <div class="input-group">
+                                <InputNumber @bind-Value="estudiante.EstudianteId" class="form-control col-4" />
+                                <div>
+                                    <button type="button" class="btn btn-primary input-group-text" @onclick="Buscar">Buscar</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <br>
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Datos del Estudiante</h3>
+                        </div>
+                        <div class="card-body">
+                            @* Nombres del estudiante *@
+                            <div class="form-group">
+                                <label>Nombres</label>
+                                <InputText class="form-control" @bind-Value="estudiante.Nombres" />
+                                <ValidationMessage For="@(() =>estudiante.Nombres)" />
+                            </div>
+
+                            @* Apellidos del estudiante *@
+                            <div class="form-group">
+                                <label>Apellidos</label>
+                                <InputText class="form-control" @bind-Value="estudiante.Apellidos" />
+                                @* <ValidationMessage For="@(() =>estudiante.Apellidos)" /> *@
+                            </div>
+                            @* Sexo del estudiante *@
+                            <div class="form-group">
+                                <label>Sexo</label>
+                                <InputSelect class="form-select text-14" @bind-Value="estudiante.Sexo">
+                                    <option></option>
+                                    <option>Masculino</option>
+                                    <option>Femenino</option>
+                                </InputSelect>
+                                <ValidationMessage For="@(() =>estudiante.Sexo)" />
+                            </div>
+                            @* Nacionalidad *@
+                            <div class="form-group">
+                                <label>Pa&iacute;s de nacimiento</label>
+
+                       <InputSelect class="form-select text-14" @bind-Value="estudiante.Nacionalidad" >
+                        <option></option>
+                        @foreach ( var pais in listaPaises)
+                        {  
+                            <option>@pais</option>
+                        }
+                       </InputSelect>
+                                <ValidationMessage For="@(() =>estudiante.Nacionalidad)" />
+                            </div>
+                            @* Fecha de nacimiento del estudiante *@
+                            <div class="form-group">
+                                <label>Fecha de Nacimiento</label>
+                                <InputDate class="form-control" @bind-Value="estudiante.FechaNacimiento" />
+                                <ValidationMessage For="@(() =>estudiante.FechaNacimiento)" />
+                            </div>
+                            @* Direccion *@
+                            <div class="form-group">
+                                <label>Direcci&oacute;n</label>
+                                <InputText class="form-control" @bind-Value="estudiante.Direccion" />
+                                <ValidationMessage For="@(() =>estudiante.Direccion)" />
+                            </div>
+                            @* Telefono del estudiante *@
+                            <div class="form-group">
+                                <label>Tel&eacute;fono</label>
+                                <InputText class="form-control" @bind-Value="estudiante.Telefono" />
+                                <ValidationMessage For="@(() =>estudiante.Telefono)" />
+                            </div>
+                            @* Correo electronico del estudiante *@
+                            <div class="form-group">
+                                <label>Email</label>
+                                <InputText class="form-control" @bind-Value="estudiante.Email" />
+                                <ValidationMessage For="@(() =>estudiante.Email)" />
+                            </div>
+                            @* Area Tecnica *@
+                            <div class="form-group">
+                                <label>&Aacute;rea T&eacute;cnica</label>
+                                <InputSelect class="form-select text-14" @bind-Value="estudiante.AreaTecnicaId">
+                                    @foreach (var item in listaAreasTecnicas)
+                                    {
+                                        <option value="@item.AreaTecnicaId">@item.NombreAreaTecnica</option>
+                                    }
+                                </InputSelect>
+                                <ValidationMessage For="@(() =>estudiante.AreaTecnicaId)" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <br>
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Datos de la madre</h3>
+                        </div>
+                        <div class="card-body">
+                            @*Numero de tarjeta de Identificacion de la Madre *@
+                            <div class="form-group">
+                                <label>Numero de Tarjeta de identificaci&oacute;n de la madre (Numero de
+                                    C&eacute;dula)</label>
+                                <InputText class="form-control" @bind-Value="estudiante.NumeroIdentificacionMadre" />
+                                <ValidationMessage For="@(() =>estudiante.NumeroIdentificacionMadre)" />
+                            </div>
+                            @* Nombres de la madre *@
+                            <div class="form-group">
+                                <label>Nombres</label>
+                                <InputText class="form-control" @bind-Value="estudiante.NombresMadre" />
+                                <ValidationMessage For="@(() =>estudiante.NombresMadre)" />
+                            </div>
+                            @* Apellidos de la madre *@
+                            <div class="form-group">
+                                <label>Apellidos</label>
+                                <InputText class="form-control" @bind-Value="estudiante.ApellidosMadre" />
+                                <ValidationMessage For="@(() =>estudiante.ApellidosMadre)" />
+                            </div>
+                            @* Telefono de la madre *@
+                            <div class="form-group">
+                                <label>Tel&eacute;fono</label>
+                                <InputText class="form-control" @bind-Value="estudiante.TelefonoMadre" />
+                                <ValidationMessage For="@(() =>estudiante.TelefonoMadre)" />
+                            </div>
+                        </div>
+                    </div>
+                    <br>
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Datos del Padre</h3>
+                        </div>
+                        <div class="card-body">
+                            @* Numero de tarjeta de Identificacion del padre *@
+                            <div class="form-group">
+                                <label>Numero de Tarjeta de identificaci&oacute;n de la madre (Numero de
+                                    C&eacute;dula)</label>
+                                <InputText class="form-control" @bind-Value="estudiante.NumeroIdentificacionPadre" />
+                                <ValidationMessage For="@(() =>estudiante.NumeroIdentificacionPadre)" />
+                            </div>
+                            @* Nombres del padre *@
+                            <div class="form-group">
+                                <label>Nombres</label>
+                                <InputText class="form-control" @bind-Value="estudiante.NombresPadre" />
+                                <ValidationMessage For="@(() =>estudiante.NombresPadre)" />
+                            </div>
+                            @* Apellidos del padre *@
+                            <div class="form-group">
+                                <label>Apellidos</label>
+                                <InputText class="form-control" @bind-Value="estudiante.ApellidosPadre" />
+                                <ValidationMessage For="@(() =>estudiante.ApellidosPadre)" />
+                            </div>
+                            @* Telefono del padre *@
+                            <div class="form-group">
+                                <label>Tel&eacute;fono</label>
+                                <InputText class="form-control" @bind-Value="estudiante.TelefonoPadre" />
+                                <ValidationMessage For="@(() =>estudiante.TelefonoPadre)" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+
+            <div class="card-footer">
+
+                <div class="form-group text-center" display: inline-block>
+
+                    <button type="button" class="btn btn-lg btn-primary" @onclick="Nuevo">Nuevo</button>
+
+                    <button type="submit" class="btn btn-lg btn-success">Guardar</button>
+
+                    <button type="button" class="btn btn-lg btn-danger" @onclick="Eliminar">Eliminar</button>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+</EditForm>
+
+@code {
+
+    [Parameter]
+    public int EstudianteId { get; set; }
+    public Estudiante estudiante { get; set; } = new Estudiante();
+
+    [Inject]
+    public EstudianteBLL estudianteBLL { get; set; }
+
+    [Inject]
+    public AreaTecnicaBLL areaTecnicaBLL { get; set; }
+
+    public List<AreaTecnica> listaAreasTecnicas { get; set; } = new List<AreaTecnica>();
+    public Paises paises = new Paises();
+
+    public List<string> listaPaises;
+    protected override void OnInitialized()
+    {
+        estudiante.EstudianteId = EstudianteId;
+        listaAreasTecnicas = areaTecnicaBLL.GetList(p => true);
+        listaPaises = paises.LlenarListaPaises();
+        Buscar();
+
+
+    }
+
+    public void Buscar()
+    {
+        if (this.estudiante.EstudianteId > 0)
+        {
+            Estudiante encontrado = estudianteBLL.Buscar(this.estudiante.EstudianteId);
+            if (encontrado != null)
+            {
+                this.estudiante = encontrado;
+            }
+            else
+            {
+                toast.ShowError("Sin resultados", "No se ha encontrado el estudiante");
+            }
+        }
+    }
+
+    public void Nuevo()
+    {
+        estudiante = new Estudiante();
+    }
+    public void Guardar()
+    {
+
+        if (estudianteBLL.Guardar(estudiante))
+        {
+            toast.ShowSuccess("Éxito!!", "Se ha guardado el estudiante con exito");
+            Nuevo();
+        }
+        else
+        {
+            toast.ShowError("Error", "No se ha podido guardar el estudiante");
+        }
+
+    }
+    private void Eliminar()
+    {
+        bool eliminado;
+
+        eliminado = estudianteBLL.Eliminar(estudiante.EstudianteId);
+        if (eliminado)
+        {
+            Nuevo();
+            toast.ShowSuccess("Éxito", "Se ha eliminado el estudiante con exito");
+        }
+        else
+        {
+            toast.ShowError("Error", "No se ha podido eliminar el estudiante");
+        }
+    }
+
+}

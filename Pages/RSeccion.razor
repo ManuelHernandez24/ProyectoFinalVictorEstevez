@@ -1,0 +1,371 @@
+@page "/RSeccion"
+@page "/RSeccion/{SeccionId:int}"
+
+@inject IToastService toast
+
+<EditForm Model="seccion" OnValidSubmit="Guardar">
+
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div class="card">
+        <div class="card-header">
+            <h3>Registro de secciones</h3>
+        </div>
+
+        <div class="card-body">
+            <form>
+
+                @*Sección id*@
+
+                <div class="form-row align-items-center">
+                    <div class="col">
+                        <div class="form-group">
+                            <label>SeccionID</label>
+                            <div class="input-group">
+                                <InputNumber @bind-Value="seccion.SeccionId" class="form-control col-4" />
+                                <div>
+                                    <button type="button" class="btn btn-primary input-group-text"
+                                        @onclick="Buscar">Buscar</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    @* Id del profesor que impartirá la sección *@
+                    <div class="form-group">
+                        <label>Maestro</label>
+                        <InputSelect class="form-select text-14" @bind-Value="seccion.MaestroId">
+                            <option></option>
+                            @foreach (var item in listaMaestros)
+                            {
+                                <option value="@item.MaestroId">@item.Nombres @item.Apellidos</option>
+                            }
+                        </InputSelect>
+                        <ValidationMessage For="@(() =>seccion.MaestroId)" />
+                    </div>
+                    <div class="row 3">
+
+                        @* Grado *@
+                        <div class="form-group">
+                            <label>Grado</label>
+                            <InputSelect class="form-select text-14" @bind-Value="seccion.Grado">
+                                <option></option>
+                                <option>1ro</option>
+                                <option>2do</option>
+                                <option>3ro</option>
+                                <option>4to</option>
+                                <option>5to</option>
+                                <option>6to</option>
+                            </InputSelect>
+
+                            <ValidationMessage For="@(() =>seccion.Grado)" />
+                        </div>
+
+                        @* Grupo *@
+                        <div class="form-group">
+                            <label>Grupo</label>
+                            <InputSelect class="form-select text-14" @bind-Value="seccion.Grupo">
+                                <option></option>
+                                @for (int i = 65; i <= 90; i++)
+                                {
+                                    <option>@((char)i)</option>
+                                }
+                            </InputSelect>
+                        </div>
+
+                        @* Area Tecnica *@
+                        <div class="form-group">
+                            <label>&Aacute;rea T&eacute;cnica</label>
+                            <InputSelect class="form-select text-14" @bind-Value="seccion.AreaTecnicaId">
+                                <option selected></option>
+                                @foreach (var item in listaAreasTecnicas)
+                                {
+                                    <option value="@item.AreaTecnicaId">@item.NombreAreaTecnica</option>
+                                }
+                            </InputSelect>
+                            <ValidationMessage For="@(() =>seccion.AreaTecnicaId)" />
+                        </div>
+
+                        @*Fecha *@
+                        <div class="form-group">
+                            <label>Fecha</label>
+                            <InputDate class="form-control" @bind-Value="seccion.FechaCreacion" />
+                            <ValidationMessage For="@(() =>seccion.FechaCreacion)" />
+                        </div>
+
+                    </div>
+                    <div class="form-group">
+                        <label>Estudiante</label>
+                        <InputSelect class="form-select text-14" @bind-Value="estudianteId">
+                            <option></option>
+                            @foreach (var item in listaEstudiantes)
+                            {
+                                <option value="@item.EstudianteId">@item.EstudianteId - @item.Nombres @item.Apellidos
+                                </option>
+                            }
+                        </InputSelect>
+                    </div>
+
+                    <div class="w3-container col">
+                        <br>
+                        <button type="button" class="btn btn-lg btn-primary" @onclick="AgregarDetalle">Agregar
+                            Estudiante</button>
+                    </div>
+
+                    <table class="table table-bordered">
+                        <thead class="thead">
+                            <tr class="table">
+                                <td>EstudianteId</td>
+                                <td>Nombre completo</td>
+                            </tr>
+                        </thead>
+                        <tbody>
+
+                            @foreach (var itemEstudiante in listaEstudiantes)
+                            {
+                                @foreach (var itemEstudianteSeccion in seccion.SeccionDetalle)
+                                {
+                                    @if (itemEstudiante.EstudianteId == itemEstudianteSeccion.EstudianteId)
+                                    {
+                                        <tr>
+                                            <td>@itemEstudiante.EstudianteId</td>
+                                            <td>@itemEstudiante.Nombres @itemEstudiante.Apellidos</td>
+                                            <td><span class="btn btn-sm btn-outline-primary oi oi-ban" href="#"
+                                        @onclick="@(() => RemoverFila(itemEstudianteSeccion))"> Remover</span> </td>
+                                        </tr>
+                                    }
+                                }
+                            }
+
+                        </tbody>
+                    </table>
+
+                    @* Cantidad es estudiantes*@
+                    <div class="form-group">
+                        <label>Cantidad de Estudiantes</label>
+                        <InputNumber class="form-control" @bind-Value="seccion.CantidadEstudiantes" readOnly />
+                    </div>
+                </div>
+            </form>
+
+            <div class="card-footer">
+
+                <div class="form-group text-center" display: inline-block>
+
+                    <button type="button" class="btn btn-lg btn-primary" @onclick="Nuevo">Nuevo</button>
+
+                    <button type="submit" class="btn btn-lg btn-success">Guardar</button>
+
+                    <button type="button" class="btn btn-lg btn-danger" @onclick="Eliminar">Eliminar</button>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+</EditForm>
+
+@code {
+
+    [Parameter]
+    public int SeccionId { get; set; }
+    public int estudianteId { get; set; }
+
+    public Seccion seccion { get; set; } = new Seccion();
+    public Seccion seccion1 { get; set; } = new Seccion();
+
+    [Inject]
+    public SeccionBLL seccionBLL { get; set; }
+
+    [Inject]
+    public MaestroBLL maestroBLL { get; set; }
+
+    [Inject]
+    public EstudianteBLL estudianteBLL { get; set; }
+
+    [Inject]
+    public AreaTecnicaBLL areaTecnicaBLL { get; set; }
+
+    public List<Maestro> listaMaestros { get; set; } = new List<Maestro>();
+    public List<Estudiante> listaEstudiantes { get; set; } = new List<Estudiante>();
+    public List<AreaTecnica> listaAreasTecnicas { get; set; } = new List<AreaTecnica>();
+    public List<Seccion> listaSecciones { get; set; } = new List<Seccion>();
+
+
+    protected override void OnInitialized()
+    {
+        seccion.SeccionId = SeccionId;
+        seccion.AreaTecnicaId = 0;
+        listaMaestros = maestroBLL.GetList(p => true);
+        listaEstudiantes = estudianteBLL.GetList(p => true);
+        listaAreasTecnicas = areaTecnicaBLL.GetList(p => true);
+        listaSecciones = seccionBLL.GetList(p => true);
+
+        Buscar();
+    }
+
+    public void Buscar()
+    {
+        if (this.seccion.SeccionId > 0)
+        {
+            Seccion encontrado = seccionBLL.Buscar(this.seccion.SeccionId);
+            if (encontrado != null)
+            {
+                this.seccion = encontrado;
+            }
+            else
+            {
+                toast.ShowError("Sin resultados", "No se ha encontrado la sección");
+            }
+        }
+    }
+
+    private void AgregarDetalle()
+    {
+
+        if (seccion.CantidadEstudiantes <= 30)
+        {
+            if (!BuscarEstudiante() && !ComprobarAreaTecnica() && !ComprobarOtrasSeccionesEstudiante())
+            {
+                this.seccion.SeccionDetalle.Add(new SeccionDetalle(estudianteId));
+                seccion.CantidadEstudiantes++;
+            }
+            else if (BuscarEstudiante())
+            {
+                toast.ShowError("Error", "El estudiante ya está en la sección.");
+            }
+            if (ComprobarAreaTecnica())
+            {
+                toast.ShowError("Error", "El estudiante y la sección deben de tener la misma área técnica.");
+            }
+            if (ComprobarOtrasSeccionesEstudiante())
+            {
+                toast.ShowError("Error", "El estudiante ya está inscripto en otra sección");
+            }
+        }
+        else
+        {
+            toast.ShowError("Error", "Una sección sólo puede tener 30 estudiantes o menos.");
+        }
+    }
+
+    private bool ComprobarOtrasSeccionesEstudiante()
+    {
+        bool encontrado = false;
+        listaSecciones = seccionBLL.GetList(p => true);
+
+        foreach (var item in listaSecciones)
+        {
+            seccion1 = seccionBLL.BuscarSeccion(item.SeccionId);
+            foreach (var itemDetalle in seccion1.SeccionDetalle)
+            {
+                if (itemDetalle.EstudianteId == estudianteId)
+                {
+                    encontrado = true;
+                    break;
+                }
+
+            }
+            if (encontrado)
+            {
+                break;
+            }
+
+        }
+
+        return encontrado;
+    }
+
+
+
+    private void RemoverFila(SeccionDetalle item)
+    {
+        this.seccion.SeccionDetalle.Remove(item);
+        seccion.CantidadEstudiantes--;
+    }
+    public void Nuevo()
+    {
+        seccion = new Seccion();
+    }
+    public void Guardar()
+    {
+        if (!seccionBLL.ComprobarExistenciaSeccion(seccion.Grado, seccion.Grupo, seccion.AreaTecnicaId))
+        {
+            if (seccionBLL.Guardar(seccion))
+            {
+                toast.ShowSuccess("Éxito!!", "Se ha guardado la sección con exito");
+                Nuevo();
+            }
+            else
+            {
+                toast.ShowError("Error", "No se ha podido guardar la sección");
+            }
+        }
+        else if (seccionBLL.Existe(seccion.SeccionId))
+        {
+            if (seccionBLL.Guardar(seccion))
+            {
+                toast.ShowSuccess("Éxito!!", "Se ha guardado la sección con exito");
+                Nuevo();
+            }
+            else
+            {
+                toast.ShowError("Error", "No se ha podido guardar la sección");
+            }
+        }
+        else
+        {
+            toast.ShowError("Error", "Esta seccion ya está creada,");
+        }
+
+
+    }
+    private void Eliminar()
+    {
+        bool eliminado;
+
+        eliminado = seccionBLL.Eliminar(seccion.SeccionId);
+        if (eliminado)
+        {
+            Nuevo();
+            toast.ShowSuccess("Éxito", "Se ha eliminado la sección con exito");
+        }
+        else
+        {
+            toast.ShowError("Error", "No se ha podido eliminar la sección");
+        }
+    }
+
+    private bool BuscarEstudiante()
+    {
+        bool estudianteEncontrado = false;
+        foreach (var itemEstudianteSeccion in seccion.SeccionDetalle)
+        {
+            if (itemEstudianteSeccion.EstudianteId == estudianteId)
+            {
+                estudianteEncontrado = true;
+                break;
+            }
+        }
+        return estudianteEncontrado;
+        {
+        }
+
+    }
+    private bool ComprobarAreaTecnica()
+    {
+        bool estudianteEncontrado = false;
+        foreach (var itemEstudiante in listaEstudiantes)
+        {
+            if (itemEstudiante.EstudianteId == estudianteId)
+            {
+                if (itemEstudiante.AreaTecnicaId != seccion.AreaTecnicaId)
+                {
+                    estudianteEncontrado = true;
+                    break;
+                }
+            }
+        }
+        return estudianteEncontrado;
+    }
+}

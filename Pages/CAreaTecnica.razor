@@ -1,0 +1,110 @@
+@using ProyectoFinal.Entidades
+@using ProyectoFinal.DAL
+
+@page "/CAreaTecnica"
+
+
+
+<EditForm Model="listaAreaTecnica">
+    <DataAnnotationsValidator />
+
+    <div class="card" style="box-shadow: 8px 8px rgba(0, 0, 0, 0.26);">
+
+        <div class="card-header">
+            <h4 style="text-align: center;">Consulta de &aacute;reas t&eacute;cnicas</h4>
+        </div>
+
+        <div class="card-body">
+            <form>
+                <div class="input-group d-flex align-items-end">
+
+                    <div class="flex-fill mx-2">
+                        <label>Filtro</label>
+                        <InputSelect class="form-select text-14" @bind-Value="filtro">
+                            <option value="1">ID</option>
+                            <option value="2">Nombre</option>
+                        </InputSelect>
+                    </div>
+
+
+                    <div class="flex-fill mx-2">
+                        <label>Busqueda</label>
+                        <InputText class="form-control" @bind-Value="Criterio" />
+                    </div>
+
+                    <button type="button" class="btn btn-lg btn-primary" @onclick="Buscar"><span
+                            class="oi oi-magnifying-glass"></span>Buscar</button>
+                </div>
+            </form>
+        </div>
+        <table class="table table-bordered" style="box-shadow: 1px 6px rgba(0, 0, 0, 0.2);">
+            <thead class="thead">
+                <tr class="table">
+                    <td><b>ID</b></td>
+                    <td><b>Nombre del &aacute;rea t&eacute;cnica</b></td>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in listaAreaTecnica)
+                {
+                    <tr>
+                        <td>@item.AreaTecnicaId</td>
+                        <td>@item.NombreAreaTecnica</td>
+                        <td><a class="btn btn-sm btn-outline-primary oi oi-eye"
+                            href=@($"RAreaTecnica/{item.AreaTecnicaId}")></a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</EditForm>
+
+
+
+
+@code {
+    public string filtro { get; set; } = "1";
+    public string Criterio { get; set; } = "";
+
+
+
+    public List<AreaTecnica> listaAreaTecnica { get; set; } = new List<AreaTecnica>();
+
+    [Inject]
+    public AreaTecnicaBLL areaTecnicaBLL { get; set; }
+
+    private void Buscar()
+    {
+
+        switch (filtro)
+        {
+            case "1":
+                if (Criterio == "")
+                {
+                    listaAreaTecnica = null;
+                    listaAreaTecnica = areaTecnicaBLL.GetList(p => true);
+                }
+                else
+                {
+                    listaAreaTecnica = null;
+                    listaAreaTecnica = areaTecnicaBLL.GetList(p => p.AreaTecnicaId == int.Parse(Criterio));
+                }
+                break;
+
+            case "2":
+
+                if (Criterio == "")
+                {
+                    listaAreaTecnica = null;
+                    listaAreaTecnica = areaTecnicaBLL.GetList(p => true);
+                }
+                else
+                {
+                    listaAreaTecnica = null;
+                    listaAreaTecnica = areaTecnicaBLL.GetList(p => p.NombreAreaTecnica.ToLower().Contains(Criterio.ToLower()));
+                }
+                break;
+        }
+    }
+}

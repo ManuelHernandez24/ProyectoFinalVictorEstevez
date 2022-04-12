@@ -1,0 +1,137 @@
+@page "/RMateria"
+@page "/RMateria/{MateriaId:int}"
+@inject IToastService toast
+
+
+<EditForm Model="materia" OnValidSubmit="Guardar">
+
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div class="card">
+        <div class="card-header">
+            <h3>Registro de materias</h3>
+        </div>
+
+        <div class="card-body">
+            <form>
+
+                @*Materia id*@
+                <div class="form-row align-items-center">
+                    <div class="col">
+                        <div class="form-group">
+                            <label>MateriaID</label>
+                            <div class="input-group">
+                                <InputNumber @bind-Value="materia.MateriaId" class="form-control col-4" />
+                                <div>
+                                    <button type="button" class="btn btn-primary input-group-text"
+                                        @onclick="Buscar">Buscar</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <br>
+                    <div class="card-body">
+                        @* Nombres de la materia*@
+                        <div class="form-group">
+                            <label>Nombre de la materia</label>
+                            <InputText class="form-control" @bind-Value="materia.NombreMateria" />
+                            <ValidationMessage For="@(() =>materia.NombreMateria)" />
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        @* Nombres de la materia*@
+                        <div class="form-group">
+                            <label>Veces asignada</label>
+                            <InputNumber class="form-control" @bind-Value="materia.VecesAsignada" readonly />
+                        </div>
+                    </div>
+                </div>
+            </form>
+
+            <div class="card-footer">
+
+                <div class="form-group text-center" display: inline-block>
+
+                    <button type="button" class="btn btn-lg btn-primary" @onclick="Nuevo">Nuevo</button>
+
+                    <button type="submit" class="btn btn-lg btn-success">Guardar</button>
+
+                    <button type="button" class="btn btn-lg btn-danger" @onclick="Eliminar">Eliminar</button>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+</EditForm>
+
+@code {
+
+    [Parameter]
+    public int MateriaId { get; set; }
+    public Materia materia { get; set; } = new Materia();
+    @* public Producto producto { get; set; } = new Producto(); *@
+    //Entdiad de materia
+
+    [Inject]
+    public MateriaBLL materiaBLL { get; set; }
+
+    protected override void OnInitialized()
+    {
+        materia.MateriaId = MateriaId;
+        Buscar();
+
+    }
+
+    public void Buscar()
+    {
+        if (this.materia.MateriaId > 0)
+        {
+            Materia encontrado = materiaBLL.Buscar(this.materia.MateriaId);
+            if (encontrado != null)
+            {
+                this.materia = encontrado;
+            }
+            else
+            {
+                toast.ShowError("Sin resultados", "No se ha encontrado la materia");
+            }
+        }
+    }
+
+    public void Nuevo()
+    {
+        materia = new Materia();
+    }
+    public void Guardar()
+    {
+
+        if (materiaBLL.Guardar(materia))
+        {
+            toast.ShowSuccess("Éxito!!", "Se ha guardado la materia con exito");
+            Nuevo();
+        }
+        else
+        {
+            toast.ShowError("Error", "No se ha podido guardar la materia");
+        }
+
+    }
+    private void Eliminar()
+    {
+        bool eliminado;
+
+        eliminado = materiaBLL.Eliminar(materia.MateriaId);
+        if (eliminado)
+        {
+            Nuevo();
+            toast.ShowSuccess("Éxito", "Se ha eliminado la materia con exito");
+        }
+        else
+        {
+            toast.ShowError("Error", "No se ha podido eliminar la materia");
+        }
+    }
+
+}

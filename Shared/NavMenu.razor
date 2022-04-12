@@ -1,0 +1,90 @@
+﻿<div class="top-row ps-3 navbar navbar-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="">ProyectoFinal</a>
+        <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+    </div>
+</div>
+
+<div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
+    <nav class="flex-column">
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                <span class="oi oi-home" aria-hidden="true"></span> Home
+            </NavLink>
+        </div>
+
+
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="RMaestro">
+                <span class="oi oi-plus" aria-hidden="true"></span> Registrar Maestro
+            </NavLink>
+        </div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="REstudiante">
+                <span class="oi oi-plus" aria-hidden="true"></span> Registrar Estudiante
+            </NavLink>
+        </div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="RAreaTecnica">
+                <span class="oi oi-plus" aria-hidden="true"></span> Registrar &Aacute;rea T&eacute;cnica
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="RMateria">
+                <span class="oi oi-plus" aria-hidden="true"></span> Registrar Materia
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="RSeccion">
+                <span class="oi oi-plus" aria-hidden="true"></span> Registrar Secci&oacute;n
+            </NavLink>
+        </div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="CMaestro">
+                <span class="oi oi-list-rich" aria-hidden="true"></span> Consultar Maestro
+            </NavLink>
+        </div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="CEstudiante">
+                <span class="oi oi-list-rich" aria-hidden="true"></span> Consultar Estudiante
+            </NavLink>
+        </div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="CAreaTecnica">
+                <span class="oi oi-list-rich" aria-hidden="true"></span> Consultar &Aacute;rea T&eacute;cnica
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="CMateria">
+                <span class="oi oi-list-rich" aria-hidden="true"></span> Consultar Materia
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="CSeccion">
+                <span class="oi oi-list-rich" aria-hidden="true"></span> Consultar Secci&oacute;n
+            </NavLink>
+        </div>
+
+
+    </nav>
+</div>
+
+@code {
+    private bool collapseNavMenu = true;
+
+    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+}

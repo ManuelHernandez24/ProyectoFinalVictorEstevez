@@ -1,0 +1,188 @@
+@using ProyectoFinal.Entidades
+@using ProyectoFinal.DAL
+
+@page "/CSeccion"
+
+
+
+<EditForm Model="listaSeccion">
+    <DataAnnotationsValidator />
+
+    <div class="card" style="box-shadow: 8px 8px rgba(0, 0, 0, 0.26);">
+
+        <div class="card-header">
+            <h4 style="text-align: center;">Consulta de secciones</h4>
+        </div>
+
+        <div class="card-body">
+            <form>
+                <div class="input-group d-flex align-items-end">
+
+                    <div class="container">
+
+
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" @bind-value="@checkBoxFecha">
+                            <label class="form-check-label">Buscar por fecha de creaci&oacute;n</label>
+                        </div>
+
+                        <div>
+                            <label>Desde</label>
+                            <InputDate class="form-control" @bind-Value="fechaDesde" name="DataPickerDesde" />
+                        </div>
+
+                        <div>
+                            <label>Hasta</label>
+                            <InputDate class="form-control" @bind-Value="fechaHasta" name="DataPickerDesde" />
+                        </div>
+                    </div>
+
+                    <div class="flex-fill mx-2">
+                        <label>Filtro</label>
+                        <InputSelect class="form-select text-14" @bind-Value="filtro">
+                            <option value="1">ID</option>
+                            <option value="2">Grado</option>
+                        </InputSelect>
+                    </div>
+
+
+                    <div class="flex-fill mx-2">
+                        <label>Busqueda</label>
+                        <InputText class="form-control" @bind-Value="Criterio" />
+                    </div>
+
+                    <button type="button" class="btn btn-lg btn-primary" @onclick="Buscar"><span
+                            class="oi oi-magnifying-glass"></span>Buscar</button>
+                </div>
+            </form>
+        </div>
+        <table class="table table-bordered" style="box-shadow: 1px 6px rgba(0, 0, 0, 0.2);">
+            <thead class="thead">
+                <tr class="table">
+                    <td><b>ID</b></td>
+                    <td><b>Grado</b></td>
+                    <td><b>Grupo</b></td>
+                    <td><b>&Aacute;rea T&eacute;cnica</b></td>
+                    <td><b>Fecha de creaci&oacute;n</b></td>
+                    <td><b>Cantidad de estudiantes</b></td>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in listaSeccion)
+                {
+                    <tr>
+                        <td>@item.SeccionId</td>
+                        <td>@item.Grado</td>
+                        <td>@item.Grupo</td>
+
+                        @foreach (var itemAreaTecnica in listaAreaTecnica)
+                        {
+                            if (itemAreaTecnica.AreaTecnicaId == item.AreaTecnicaId)
+                            {
+                                <td>@itemAreaTecnica.NombreAreaTecnica</td>
+                            }
+                        }
+                        <td>@item.FechaCreacion.ToString("dd/MM/yyyy")</td>
+                        <td>@item.CantidadEstudiantes</td>
+
+                        <td><a class="btn btn-sm btn-outline-primary oi oi-eye" href=@($"RSeccion/{item.SeccionId}")></a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</EditForm>
+
+
+
+
+@code {
+    public string filtro { get; set; } = "1";
+    public string Criterio { get; set; } = "";
+    public DateTime fechaDesde;
+    public DateTime fechaHasta;
+    public bool checkBoxFecha = false;
+
+
+
+
+    public List<Seccion> listaSeccion { get; set; } = new List<Seccion>();
+    public List<AreaTecnica> listaAreaTecnica { get; set; } = new List<AreaTecnica>();
+
+    [Inject]
+    public SeccionBLL seccionBLL { get; set; }
+
+    [Inject]
+    public AreaTecnicaBLL areaTecnicaBLL
+    {
+        get; set;
+    }
+
+    protected override void OnInitialized()
+    {
+        listaAreaTecnica = areaTecnicaBLL.GetList(p => true);
+    }
+
+    private void Buscar()
+    {
+
+        switch (filtro)
+        {
+            case "1":
+                if (checkBoxFecha == true && Criterio != "")
+                {
+                    listaSeccion = null;
+                    listaSeccion = seccionBLL.GetList(c => c.FechaCreacion.Date >= fechaDesde && c.FechaCreacion <=
+                    fechaHasta && c.SeccionId
+                    == int.Parse(Criterio));
+
+                }
+                else if (checkBoxFecha == true && Criterio == "")
+                {
+                    listaSeccion = null;
+                    listaSeccion = seccionBLL.GetList(c => c.FechaCreacion.Date >= fechaDesde && c.FechaCreacion <=
+                    fechaHasta);
+
+                }
+                else if (!checkBoxFecha && Criterio == "")
+                {
+                    listaSeccion = null;
+                    listaSeccion = seccionBLL.GetList(p => true);
+                }
+                else
+                {
+                    listaSeccion = null;
+                    listaSeccion = seccionBLL.GetList(p => p.MaestroId == int.Parse(Criterio));
+                }
+                break;
+
+            case "2":
+                if (checkBoxFecha == true && Criterio != "")
+                {
+                    listaSeccion = null;
+                    listaSeccion = seccionBLL.GetList(c => c.FechaCreacion.Date >= fechaDesde && c.FechaCreacion <=
+                    fechaHasta &&
+                    c.Grado.ToLower().Contains(Criterio.ToLower()));
+
+                }
+                else if (checkBoxFecha == true && Criterio == "")
+                {
+                    listaSeccion = null;
+                    listaSeccion = seccionBLL.GetList(c => c.FechaCreacion.Date >= fechaDesde && c.FechaCreacion <=
+                    fechaHasta);
+                }
+                else if (!checkBoxFecha && Criterio == "")
+                {
+                    listaSeccion = null;
+                    listaSeccion = seccionBLL.GetList(p => true);
+                }
+                else
+                {
+                    listaSeccion = null;
+                    listaSeccion = seccionBLL.GetList(p => p.Grado.ToLower().Contains(Criterio.ToLower()));
+                }
+                break;
+        }
+    }
+}
